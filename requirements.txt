@@ -1,0 +1,86 @@
+# --- Dash / UI ---
+dash
+dash-bootstrap-components
+plotly
+
+# --- Data / HTTP ---
+pandas
+numpy
+requests
+httpx
+python-dateutil
+yfinance
+
+# --- Storage (Postgres) ---
+SQLAlchemy
+psycopg2-binary
+
+# --- Cache ---
+redis
+
+# --- Scheduling (ingestion jobs) ---
+APScheduler
+
+# --- Config ---
+python-dotenv
+
+# --- Performance / utils ---
+tqdm
+
+# --- Analytics / stats ---
+scipy
+statsmodels
+
+# --- Tests ---
+pytest
+
+
+# =========================
+# OPTIONAL (recommandé)
+# =========================
+
+# Logging structuré (pro)
+# loguru
+
+# Lint / format / type checking
+# black
+# ruff
+# mypy
+# types-requests
+
+# Jupyter pour prototyper vite
+# jupyter
+# ipykernel
+
+# TA indicators (RSI, MACD…) - utile pour screener
+pandas-ta
+
+# Parquet / fichiers rapides (si stockage en fichiers en plus de Postgres)
+pyarrow
+fastparquet
+
+# Visualisations plus riches (ex: heatmaps, matrices)
+matplotlib
+
+# Dev server plus propre + env management (optionnel)
+# gunicorn
+
+# Monitoring / profiling (optionnel)
+rich
+line-profiler
+
+# Validation + robustesse (recommandé)
+pydantic
+tenacity
+requests-cache
+
+# Scraping (optionnel, si nécessaire)
+beautifulsoup4
+lxml
+playwright
+
+# Macro SDMX (optionnel)
+pandasdmx
+
+# Websockets (optionnel, surtout crypto)
+websockets

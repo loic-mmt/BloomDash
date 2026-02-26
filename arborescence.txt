@@ -1,0 +1,88 @@
+bloomdash/
+├─ app.py                      # entrypoint Dash
+├─ index.py                    # layout global + routing
+├─ requirements.txt
+├─ Dockerfile
+├─ README.md
+├─ .env.example
+│
+├─ assets/                     # CSS + images (Dash auto-load)
+│  ├─ terminal.css
+│  └─ fonts/ (option)
+│
+├─ pages/                      # Dash pages (ou router custom)
+│  ├─ home.py
+│  ├─ markets.py
+│  ├─ instrument.py
+│  ├─ screener.py
+│  ├─ factor_lab.py
+│  ├─ backtester.py
+│  ├─ portfolio.py
+│  ├─ macro.py
+│  ├─ news.py
+│  ├─ watchlists.py
+│  ├─ admin.py
+│  └─ not_found.py
+│
+├─ components/                 # UI réutilisables
+│  ├─ navbar.py
+│  ├─ topbar_search.py
+│  ├─ cards.py
+│  ├─ tables.py
+│  ├─ charts.py
+│  ├─ filters.py
+│  └─ modals.py
+│
+├─ callbacks/                  # callbacks groupés par domaine
+│  ├─ home_cb.py
+│  ├─ markets_cb.py
+│  ├─ instrument_cb.py
+│  ├─ screener_cb.py
+│  ├─ factor_cb.py
+│  ├─ backtest_cb.py
+│  ├─ portfolio_cb.py
+│  ├─ macro_cb.py
+│  ├─ news_cb.py
+│  ├─ alerts_cb.py
+│  └─ admin_cb.py
+│
+├─ data/                       # couche data (clean)
+│  ├─ sources/
+│  │  ├─ stooq.py
+│  │  ├─ fred.py
+│  │  ├─ ecb.py
+│  │  ├─ coingecko.py
+│  │  ├─ finnhub.py
+│  │  └─ gdelt.py
+│  │
+│  ├─ pipeline/
+│  │  ├─ ingest.py             # orchestration ingestion
+│  │  ├─ transform.py          # cleaning/standardisation
+│  │  ├─ features.py           # returns/vol/factors
+│  │  └─ scheduler.py          # APScheduler / cron hooks
+│  │
+│  ├─ storage/
+│  │  ├─ db.py                 # SQLAlchemy/psycopg
+│  │  ├─ models.py             # tables: prices, macro, news...
+│  │  └─ cache.py              # Redis cache wrappers
+│  │
+│  └─ universe/
+│     ├─ tickers.csv
+│     └─ mapping.py            # ticker↔isin↔name
+│
+├─ analytics/                  # backtest + risk
+│  ├─ returns.py
+│  ├─ risk.py
+│  ├─ factors.py
+│  ├─ backtest.py
+│  └─ stats.py
+│
+├─ tests/
+│  ├─ test_sources.py
+│  ├─ test_features.py
+│  └─ test_backtest.py
+│
+└─ scripts/
+   ├─ seed_db.py               # init database
+   ├─ run_ingest.py            # run ingestion manually
+   └─ export_report.py
