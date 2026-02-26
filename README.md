@@ -57,5 +57,5 @@ Objectif : fournir une interface type terminal pour **explorer des instruments**
 
 ### 1) Cloner le repo
 ```bash
-git clone <REPO_URL>
+git clone <https://github.com/loic-mmt/Bloomberg>
 cd bloomdash
