@@ -4,7 +4,7 @@ bloomdash/
 ├─ requirements.txt
 ├─ Dockerfile
 ├─ README.md
-├─ .env.example
+├─ .venv
 │
 ├─ assets/                     # CSS + images (Dash auto-load)
 │  ├─ terminal.css
