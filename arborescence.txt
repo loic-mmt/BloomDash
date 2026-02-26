@@ -50,6 +50,7 @@ bloomdash/
 │  ├─ sources/
 │  │  ├─ stooq.py
 │  │  ├─ fred.py
+│  │  ├─ yfinance.py
 │  │  ├─ ecb.py
 │  │  ├─ coingecko.py
 │  │  ├─ finnhub.py
