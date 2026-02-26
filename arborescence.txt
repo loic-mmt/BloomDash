@@ -4,11 +4,13 @@ bloomdash/
 ├─ requirements.txt
 ├─ Dockerfile
 ├─ README.md
-├─ .venv
+├─ .gitignore
+├─ arborescence.txt
 │
 ├─ assets/                     # CSS + images (Dash auto-load)
 │  ├─ terminal.css
-│  └─ fonts/ (option)
+│  └─ fonts/
+│     └─ .gitkeep
 │
 ├─ pages/                      # Dash pages (ou router custom)
 │  ├─ home.py
@@ -24,7 +26,8 @@ bloomdash/
 │  ├─ admin.py
 │  └─ not_found.py
 │
-├─ components/                 # UI réutilisables
+├─ components/                 # UI reutilisables
+│  ├─ __init__.py
 │  ├─ navbar.py
 │  ├─ topbar_search.py
 │  ├─ cards.py
@@ -33,7 +36,8 @@ bloomdash/
 │  ├─ filters.py
 │  └─ modals.py
 │
-├─ callbacks/                  # callbacks groupés par domaine
+├─ callbacks/                  # callbacks groupes par domaine
+│  ├─ __init__.py
 │  ├─ home_cb.py
 │  ├─ markets_cb.py
 │  ├─ instrument_cb.py
@@ -46,8 +50,10 @@ bloomdash/
 │  ├─ alerts_cb.py
 │  └─ admin_cb.py
 │
-├─ data/                       # couche data (clean)
+├─ data/                       # couche data
+│  ├─ __init__.py
 │  ├─ sources/
+│  │  ├─ __init__.py
 │  │  ├─ stooq.py
 │  │  ├─ fred.py
 │  │  ├─ yfinance.py
@@ -56,22 +62,29 @@ bloomdash/
 │  │  ├─ finnhub.py
 │  │  └─ gdelt.py
 │  │
+│  ├─ calculations/
+│  │  ├─ features.cpp
+│  │  └─ pybind_module.cpp
+│  │
 │  ├─ pipeline/
+│  │  ├─ __init__.py
 │  │  ├─ ingest.py             # orchestration ingestion
 │  │  ├─ transform.py          # cleaning/standardisation
 │  │  ├─ features.py           # returns/vol/factors
 │  │  └─ scheduler.py          # APScheduler / cron hooks
 │  │
 │  ├─ storage/
+│  │  ├─ __init__.py
 │  │  ├─ db.py                 # SQLAlchemy/psycopg
 │  │  ├─ models.py             # tables: prices, macro, news...
 │  │  └─ cache.py              # Redis cache wrappers
 │  │
 │  └─ universe/
 │     ├─ tickers.csv
-│     └─ mapping.py            # ticker↔isin↔name
+│     └─ mapping.py            # ticker<->isin<->name
 │
 ├─ analytics/                  # backtest + risk
+│  ├─ __init__.py
 │  ├─ returns.py
 │  ├─ risk.py
 │  ├─ factors.py
