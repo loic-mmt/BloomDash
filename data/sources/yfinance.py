@@ -1,4 +1,10 @@
-"""TODO: Implement datasource adapter yfinance."""
+"""Yahoo Finance adapter (work in progress).
+
+Data types fetched here:
+- Intraday OHLCV bars (currently 1h interval) for equities/ETFs/indices/FX.
+- Adjusted close and volume aligned to a canonical price schema.
+- Incremental ingestion checkpoints (last available date per ticker).
+"""
 
 import yfinance as yf
 import numpy as np
@@ -9,6 +15,23 @@ from datetime import datetime, timedelta
 from pathlib import Path
 import shutil
 import sys
+
+DATA_TYPES = (
+    "intraday_ohlcv_prices",
+    "adjusted_close_and_volume",
+    "incremental_last_date_checkpoints",
+)
+
+TODO_ITEMS = (
+    "Move static ticker list to data/universe/tickers.csv and load it dynamically.",
+    "Extract downloader, normalizer, and storage steps into composable service functions.",
+    "Add robust retry/backoff for transient yfinance/network failures.",
+    "Add market-calendar guardrails (weekends/holidays) for incremental start dates.",
+    "Add explicit schema validation before write (required columns + dtypes).",
+    "Add structured logging and per-ticker ingestion metrics.",
+    "Add unit tests for normalize_yf with MultiIndex and malformed payloads.",
+    "Add integration tests for append flow with temporary parquet datasets.",
+)
 
 PYTHON_ROOT = Path(__file__).resolve().parents[1]
 if str(PYTHON_ROOT) not in sys.path:
