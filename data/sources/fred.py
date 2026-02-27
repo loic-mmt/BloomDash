@@ -26,7 +26,21 @@ import pandas_datareader as pdr
 from datetime import datetime
 from math import tanh
 import numpy as np
+import pandas as pd
+import sqlite3
+from pathlib import Path
+import sys
 
+PYTHON_ROOT = Path(__file__).resolve().parents[1]
+if str(PYTHON_ROOT) not in sys.path:
+    sys.path.insert(0, str(PYTHON_ROOT))
+
+from data.storage.db import (
+    get_last_fred_date,
+    init_fred_last_dates_db,
+    upsert_fred_last_dates,
+)
+from data.storage.parquet import append_fred_dataset
 
 SERIES = {
     "US": {
@@ -80,9 +94,8 @@ SERIES = {
 }
 
 
-def get_macro_data(region="FR", start=datetime(2023, 10, 1)):
+def get_macro_data(region="FR", start= str | None, end: str | None = None):
     codes = SERIES[region]
-    end = datetime.now()
 
     cpi  = pdr.get_data_fred(codes["cpi"],  start, end)
     if cpi.empty:
@@ -97,7 +110,6 @@ def get_macro_data(region="FR", start=datetime(2023, 10, 1)):
     if unrt.empty:
         raise ValueError(f"Data retrieval failed for Unemployment Rate in {region}. Please check the data source or the date range.")
 
-    print()
     return cpi, gdp, pol, unrt
 
 
@@ -118,6 +130,9 @@ def data_optimization(cpi, gdp, pol, unrt):
 
     return latest_inflation, latest_gdp, pol_mean, unrt_mean, z_unrate, z_fed, inflation_adj, growth_adj
 
-def main():
+def main()-> None:
+    """Run the ingestion pipeline for the zone."""
+    conn = sqlite3.connect(DB_PATH)
+    init_prices_last_dates_db(conn)
     cpi, gdp, pol, unrt = get_macro_data("FR", datetime(2023, 10, 1))
     latest_inflation, latest_gdp, pol_mean, unrt_mean, z_unrate, z_fed, inflation_adj, growth_adj = data_optimization(cpi, gdp, pol, unrt)

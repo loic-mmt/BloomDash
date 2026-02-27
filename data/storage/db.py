@@ -327,7 +327,7 @@ def upsert_fred_last_dates(conn: sqlite3.Connection, df: pd.DataFrame) -> str | 
         df_last.iloc[0]["zone"],
         df_last.iloc[0]["date"],
         float(df_last.iloc[0]["cpi"]) if pd.notna(df_last.iloc[0]["cpi"]) else None,
-        float(df_last.iloc[0]["higdpgh"]) if pd.notna(df_last.iloc[0]["gdp"]) else None,
+        float(df_last.iloc[0]["gdp"]) if pd.notna(df_last.iloc[0]["gdp"]) else None,
         float(df_last.iloc[0]["policy"]) if pd.notna(df_last.iloc[0]["policy"]) else None,
         float(df_last.iloc[0]["unemp"]) if pd.notna(df_last.iloc[0]["unemp"]) else None,
     )
