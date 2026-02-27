@@ -23,13 +23,15 @@ TODO_ITEMS = (
 )
 
 import pandas_datareader as pdr
-from datetime import datetime
+from datetime import datetime, timedelta
 from math import tanh
 import numpy as np
 import pandas as pd
 import sqlite3
 from pathlib import Path
 import sys
+import shutil
+
 
 PYTHON_ROOT = Path(__file__).resolve().parents[1]
 if str(PYTHON_ROOT) not in sys.path:
@@ -41,6 +43,18 @@ from data.storage.db import (
     upsert_fred_last_dates,
 )
 from data.storage.parquet import append_fred_dataset
+
+
+# --- Output dataset directory ---
+out_dir = Path("data/parquet/fred")
+CLEAN_PARQUET = False  # set True only if you want to reset the dataset
+if CLEAN_PARQUET and out_dir.exists():
+    shutil.rmtree(out_dir)
+out_dir.mkdir(parents=True, exist_ok=True)
+
+DB_PATH = Path("data/_meta.db")
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+
 
 SERIES = {
     "US": {
@@ -94,7 +108,7 @@ SERIES = {
 }
 
 
-def get_macro_data(region="FR", start= str | None, end: str | None = None):
+def get_macro_data(region = str, start= str | None, end: str | None = None):
     codes = SERIES[region]
 
     cpi  = pdr.get_data_fred(codes["cpi"],  start, end)
@@ -130,9 +144,34 @@ def data_optimization(cpi, gdp, pol, unrt):
 
     return latest_inflation, latest_gdp, pol_mean, unrt_mean, z_unrate, z_fed, inflation_adj, growth_adj
 
+
 def main()-> None:
     """Run the ingestion pipeline for the zone."""
     conn = sqlite3.connect(DB_PATH)
-    init_prices_last_dates_db(conn)
-    cpi, gdp, pol, unrt = get_macro_data("FR", datetime(2023, 10, 1))
-    latest_inflation, latest_gdp, pol_mean, unrt_mean, z_unrate, z_fed, inflation_adj, growth_adj = data_optimization(cpi, gdp, pol, unrt)
+    init_fred_last_dates_db(conn)
+
+    total = 0
+    for r in SERIES:
+        last = get_last_fred_date(conn, r)
+        if last is None:
+            dt_il_y_a_30j = datetime.now() - timedelta(days=30)
+            start = dt_il_y_a_30j.strftime("%Y-%m-%d")
+        else:
+            # on repart du lendemain (évite de recharger inutilement)
+            start_dt = datetime.strptime(last, "%Y-%m-%d") + timedelta(days=1)
+            start = start_dt.strftime("%Y-%m-%d")
+        
+        df = get_macro_data(r, start = start)
+        
+        new_last = upsert_fred_last_dates(conn, df)
+        inserted = append_fred_dataset(df, out_dir)
+        total += inserted
+
+        print(f"{r}: last={last} start={start} -> {inserted} rows  |  New last date: {new_last}")
+
+    conn.close()
+    print(f"Done. Total rows upserted: {total}")
+
+
+if __name__ == "__main__":
+    main()
