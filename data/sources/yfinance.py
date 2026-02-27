@@ -34,15 +34,15 @@ DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 YF_TICKERS = [
     # US Stocks
     "AAPL","MSFT","NVDA","AMZN","GOOGL","GOOG","META","TSLA","BRK-B","JPM",
-    "V","MA","UNH","LLY","AVGO","COST","WMT","HD","PG","KO",
-    "PEP","DIS","NFLX","ADBE","CRM","ORCL","INTC","AMD","QCOM","CSCO",
-    "XOM","CVX","BA","CAT","GE","MMM","NKE","MCD","SBUX","T",
-    "VZ","PFE","MRK","ABBV","TMO","ABT","LIN","DHR","TXN","IBM",
+    #"V","MA","UNH","LLY","AVGO","COST","WMT","HD","PG","KO",
+    #"PEP","DIS","NFLX","ADBE","CRM","ORCL","INTC","AMD","QCOM","CSCO",
+    #"XOM","CVX","BA","CAT","GE","MMM","NKE","MCD","SBUX","T",
+    #"VZ","PFE","MRK","ABBV","TMO","ABT","LIN","DHR","TXN","IBM",
 
     # ETFs
     "SPY","QQQ","DIA","IWM","VTI","VOO","IVV","VEA","VWO","EEM",
-    "XLK","XLF","XLE","XLV","XLY","XLP","XLI","XLB","XLU","XLC",
-    "ARKK","SMH","SOXX","TLT","IEF","SHY","LQD","HYG","GLD","SLV",
+    #"XLK","XLF","XLE","XLV","XLY","XLP","XLI","XLB","XLU","XLC",
+    #"ARKK","SMH","SOXX","TLT","IEF","SHY","LQD","HYG","GLD","SLV",
 
     # Indices
     "^GSPC","^NDX","^IXIC","^DJI","^RUT","^VIX",
@@ -51,7 +51,7 @@ YF_TICKERS = [
     "EURUSD=X","USDJPY=X","GBPUSD=X","USDCHF=X","AUDUSD=X","USDCAD=X","NZDUSD=X",
 
     # Crypto (Yahoo format)
-    "BTC-USD","ETH-USD","SOL-USD","BNB-USD","XRP-USD","ADA-USD","DOGE-USD","AVAX-USD","LINK-USD","MATIC-USD",
+    #"BTC-USD","ETH-USD","SOL-USD","BNB-USD","XRP-USD","ADA-USD","DOGE-USD","AVAX-USD","LINK-USD","MATIC-USD",
 ]
 
 def download_one(ticker: str, start: str | None, end: str | None = None) -> pd.DataFrame:
@@ -64,7 +64,7 @@ def download_one(ticker: str, start: str | None, end: str | None = None) -> pd.D
         end=end,
         auto_adjust=False,
         progress=False,
-        interval="1d",
+        interval="1h",
         actions=False,
         group_by="column",
     )
@@ -151,7 +151,8 @@ def main() -> None:
     for t in YF_TICKERS:
         last = get_last_price_date(conn, t)
         if last is None:
-            start = "2019-01-01"
+            dt_il_y_a_30j = datetime.now() - timedelta(days=30)
+            start = dt_il_y_a_30j.strftime("%Y-%m-%d")
         else:
             # on repart du lendemain (évite de recharger inutilement)
             start_dt = datetime.strptime(last, "%Y-%m-%d") + timedelta(days=1)
