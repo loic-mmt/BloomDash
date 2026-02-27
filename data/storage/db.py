@@ -235,3 +235,103 @@ def upsert_feature_last_dates(
     for ticker, last_date in last_by_ticker.items():
         conn.execute(sql, (feature, str(ticker), str(last_date)))
     conn.commit()
+
+
+
+def init_fred_last_dates_db(conn: sqlite3.Connection) -> None:
+    """Create SQLite objects used to track latest ingested macro-data.
+
+    Parameters
+    ----------
+    conn : sqlite3.Connection
+        Open SQLite connection to the metadata database.
+
+    Returns
+    -------
+    None
+        The function creates table/indexes in-place and commits the transaction.
+    """
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS last_dates_fred (
+          zone       TEXT NOT NULL,
+          date       TEXT NOT NULL,  -- YYYY-MM-DD
+          cpi        REAL,
+          gdp        REAL,
+          policy     REAL,
+          unemp      REAL,
+          PRIMARY KEY (zone, date)
+        );
+        """
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_last_dates_zone ON last_dates(zone);")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_last_dates_date ON last_dates(date);")
+    conn.commit()
+
+
+def get_last_fred_date(conn: sqlite3.Connection, zone: str) -> str | None:
+    """Fetch the last ingested price date for one zone.
+
+    Parameters
+    ----------
+    conn : sqlite3.Connection
+        Open SQLite connection.
+    zone : str
+        Zone symbol.
+
+    Returns
+    -------
+    str | None
+        Latest date in ``YYYY-MM-DD`` format, or ``None`` if no record exists.
+    """
+    row = conn.execute(
+        "SELECT MAX(date) FROM last_dates_fred WHERE zone = ?",
+        (zone,),
+    ).fetchone()
+    return row[0]
+
+
+def upsert_fred_last_dates(conn: sqlite3.Connection, df: pd.DataFrame) -> str | None:
+    """Upsert the most recent data row for a zone.
+
+    Parameters
+    ----------
+    conn : sqlite3.Connection
+        Open SQLite connection.
+    df : pd.DataFrame
+        Data rows for a single zone with columns matching ``last_dates_fred``
+        (zone, date, cpi, gdp, policy, unemp).
+
+    Returns
+    -------
+    str | None
+        Upserted latest date in ``YYYY-MM-DD`` format, or ``None`` if input is empty.
+    """
+    if df is None or df.empty:
+        return None
+
+    df_last = df.sort_values("date").tail(1)
+    last_date = df_last.iloc[0]["date"]
+
+    sql = """
+    INSERT INTO last_dates_fred (zone, date, cpi, gdp, policy, unemp)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(zone, date) DO UPDATE SET
+      cpi      = excluded.cpi,
+      gdp      = excluded.gdp,
+      policy   = excluded.policy,
+      unemp    = excluded.unemp;
+    """
+
+    row = (
+        df_last.iloc[0]["zone"],
+        df_last.iloc[0]["date"],
+        float(df_last.iloc[0]["cpi"]) if pd.notna(df_last.iloc[0]["cpi"]) else None,
+        float(df_last.iloc[0]["higdpgh"]) if pd.notna(df_last.iloc[0]["gdp"]) else None,
+        float(df_last.iloc[0]["policy"]) if pd.notna(df_last.iloc[0]["policy"]) else None,
+        float(df_last.iloc[0]["unemp"]) if pd.notna(df_last.iloc[0]["unemp"]) else None,
+    )
+
+    conn.execute(sql, row)
+    conn.commit()
+    return last_date
