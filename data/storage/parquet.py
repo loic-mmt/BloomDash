@@ -257,3 +257,51 @@ def load_prices_dataset(
         if sort_cols:
             df = df.sort_values(sort_cols)
     return df
+
+
+def append_prices_dataset(df: pd.DataFrame, base_dir: Path) -> int:
+    """Append one batch to the fred dataset (partitioned by zone/year).
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Prices batch for one ticker/date slice.
+    base_dir : Path
+        Prices dataset root.
+
+    Returns
+    -------
+    int
+        Number of rows written.
+    """
+    if df is None or df.empty:
+        return 0
+
+    df = _ensure_year_column(df)
+    table = pa.Table.from_pandas(df, preserve_index=False)
+
+    partitioning = ds.partitioning(
+        pa.schema(
+            [
+                ("zone", pa.string()),
+                ("year", pa.int32()),
+            ]
+        ),
+        flavor="hive",
+    )
+
+    zone = str(df["zone"].iloc[0])
+    dmin = str(df["date"].min())
+    dmax = str(df["date"].max())
+    basename_template = f"{zone}_{dmin}_{dmax}_{{i}}.parquet"
+
+    ds.write_dataset(
+        table,
+        base_dir=str(base_dir),
+        format="parquet",
+        partitioning=partitioning,
+        basename_template=basename_template,
+        existing_data_behavior="overwrite_or_ignore",
+    )
+
+    return table.num_rows
