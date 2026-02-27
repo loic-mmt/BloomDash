@@ -5,6 +5,7 @@ plotly
 
 # --- Data / HTTP ---
 pandas
+pandas_datareader
 numpy
 requests
 httpx
